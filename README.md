@@ -1,38 +1,66 @@
-# E-Commerce React Application
+# 🛒 E-Commerce Full-Stack Application
 
-This project is a full e-commerce web application built with React and Firebase.  
-I built it as part of a learning and final project process, with the goal of practicing real-world application structure, state management, authentication, and role-based access.
+This project started from a simple goal:  
+**I didn’t want to build another frontend-only project.**  
+I wanted to understand how a real **full-stack system works end to end** — how the frontend talks to the backend, how state is managed across the app, and how real production problems actually appear.
 
-The application simulates a real online store experience, including users, admins, products, carts, and orders.
+The result is a full e-commerce platform that simulates a real online store, including authentication, role-based access, orders, and admin flows.
 
 ---
 
-## Technologies Used
+## ✨ What This Project Is About
 
+This application simulates a real-world online store experience with:
+- Users and admins
+- Product catalog
+- Cart and order flow
+- Backend validation and business logic
+- Real concurrency problems (not theoretical ones)
+
+The focus was not just “making it work”, but building something **structured, scalable, and production-minded**.
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend
 - React
 - Vite
 - Redux Toolkit
-- Firebase Authentication
-- Firebase Firestore
 - Material UI (MUI)
-- JavaScript (ES6+)
-- Git & GitHub
+- Firebase Authentication
+
+### Backend
+- Node.js
+- Express
+
+### Database
+- Firebase Firestore
+
+### Testing
+- Jest (Redux logic)
+- Supertest (API endpoints)
+
+### Deployment
+- Frontend: Vercel  
+- Backend API: Railway  
+- Database: Firestore
 
 ---
 
-## What This Project Includes
+## 🔑 Core Features
 
 ### Authentication
-- User registration and login using Firebase Authentication
-- Persistent login state
-- Logout functionality
+- User registration and login with Firebase Authentication
+- Persistent login sessions
+- Logout flow
 
 ### User Roles
-The app supports two types of users:
+The system supports two roles:
 
 **Regular Users**
 - Browse products
-- Add and remove products from cart
+- Add/remove products from cart
 - Create orders
 - View personal order history
 
@@ -42,45 +70,49 @@ The app supports two types of users:
 - Manage products
 - Access admin-only screens
 
-Role handling is based on user data stored in Firestore and managed through Redux.
+Role handling is based on user data stored in Firestore and enforced by backend logic.
 
 ---
 
-## State Management
+## 🧠 State Management & Architecture
 
-Global state is managed using **Redux Toolkit**.  
-The project includes separate slices for:
+- Global state is managed using **Redux Toolkit**
+- Separate slices for:
+  - Authentication
+  - Users
+  - Products
+  - Orders
+  - Cart
+- Clear separation between:
+  - UI components
+  - State management
+  - API / backend logic
 
-- Authentication
-- Users
-- Products
-- Orders
-- Cart
-
-This structure helps keep the logic organized and scalable.
-
----
-
-## Data & Backend
-
-Firebase Firestore is used as the database for:
-- Users
-- Products
-- Orders
-
-Firebase Authentication handles login and registration, while Firestore stores application data.
-
-Sensitive configuration is stored in environment variables and is not included in the repository.
+This structure keeps the application maintainable as it grows.
 
 ---
 
-## Environment Variables
+## 🔴 Handling Race Conditions (Key Challenge)
 
-The project uses a `.env` file for Firebase configuration (ignored by Git).
+### The Problem
+While testing order creation, I discovered a real concurrency issue:  
+**two users could order the same product within milliseconds**, causing inconsistent stock data.
 
-Example:
+This issue doesn’t show up until you simulate real user behavior and parallel requests.
 
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
+### The Solution
+- Moved all critical business logic to the backend
+- Implemented **server-side validation**
+- Used **atomic Firestore operations** to ensure data consistency
+- The frontend never decides if an order is valid — it only sends requests
+
+```js
+// ❌ Wrong approach (frontend decides)
+if (product.stock > 0) {
+  createOrder();
+}
+
+// ✅ Correct approach (backend decides)
+POST /orders
+→ server validates stock atomically
+→ order succeeds or fails safely
