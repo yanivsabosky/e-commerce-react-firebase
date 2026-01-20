@@ -16,6 +16,7 @@
     "@mui/icons-material": "^7.3.6",
     "@mui/material": "^7.3.6",
     "@mui/styled-engine-sc": "^7.3.6",
+    "@reduxjs/toolkit": "^2.11.2",
     "axios": "^1.10.0",
     "chart.js": "^4.5.1",
     "firebase": "^12.6.0",
